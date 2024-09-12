@@ -23,4 +23,34 @@ def emotion_detector(text_to_analyse):
         timeout=120)
 
     formatted_response = json.loads(response.text)
-    return formatted_response
+
+    # Reset scores and dominant emotion to None
+    scores = {
+        'anger': None,
+        'disgust': None,
+        'fear': None,
+        'joy': None,
+        'sadness': None
+    }
+    dominant_emotion = None
+
+    # Check for an OK (200) status and update scores
+    if response.status_code == 200:
+        scores['anger'] = formatted_response['emotionPredictions'][0]['emotion']['anger']
+        scores['disgust'] = formatted_response['emotionPredictions'][0]['emotion']['disgust']
+        scores['fear'] = formatted_response['emotionPredictions'][0]['emotion']['fear']
+        scores['joy'] = formatted_response['emotionPredictions'][0]['emotion']['joy']
+        scores['sadness'] = formatted_response['emotionPredictions'][0]['emotion']['sadness']
+
+        #get dominant emotion
+        dominant_emotion = max(scores, key= lambda x: scores[x])
+
+    # Return results, none if sctatus code different from 200
+    return {
+        'anger': scores['anger'],
+        'disgust': scores['disgust'],
+        'fear': scores['fear'],
+        'joy': scores['joy'],
+        'sadness': scores['sadness'],
+        'dominant_emotion': dominant_emotion
+    }
